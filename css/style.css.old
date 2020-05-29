@@ -1,0 +1,289 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    width:100%;
+    overflow-x:hidden;
+    -webkit-transform:translate3d(0, 0, 0,);
+    font-family: sans-serif
+}
+p a {
+    color:#39c;
+}
+p {
+    margin-top:0px;
+}
+.link_highlight {
+    display:inline;
+}
+.link_highlight:before{
+    content:"\A";
+    white-space:pre;
+    display:block;
+}
+.link_highlight:target {
+    background: #FFFD77;
+    padding-left:0px;
+    width:100%;
+    background-clip: content-box;
+}
+:target:before {
+    display:block;
+    content:" ";
+    margin-top:-75px;
+    height:75px;
+    visibility:hidden;
+}
+::-webkit-scrollbar {
+    -webkit-appearance: none;
+    width: 9px;
+}
+::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background-color: rgba(0,0,0,.5);
+    -webkit-box-shadow: 0 0 1px rgba(255,255,255,.5);
+}
+.tooltipline {
+    border-bottom:1px dotted #0d0d0d;
+}
+#tooltip
+{
+    text-align: center;
+    color: #fff;
+    background: #111;
+    position: absolute;
+    z-index: 1000000000;
+    padding: 15px;
+}
+ 
+    #tooltip:after /* triangle decoration */
+    {
+        width: 0;
+        height: 0;
+        border-left: 10px solid transparent;
+        border-right: 10px solid transparent;
+        border-top: 10px solid #111;
+        content: '';
+        position: absolute;
+        left: 50%;
+        bottom: -10px;
+        margin-left: -10px;
+    }
+ 
+        #tooltip.top:after
+        {
+            border-top-color: transparent;
+            border-bottom: 10px solid #111;
+            top: -20px;
+            bottom: auto;
+        }
+ 
+        #tooltip.left:after
+        {
+            left: 10px;
+            margin: 0;
+        }
+ 
+        #tooltip.right:after
+        {
+            right: 10px;
+            left: auto;
+            margin: 0;
+        }
+
+
+.left {
+    width: 24%;
+    height: 100%;
+    position: fixed;
+    font-family:sans-serif;
+    font-size:13px;
+    margin-left:0px;
+    max-width:360px;
+    border-right:1px solid #ececec;
+    z-index:100000;
+    -webkit-box-shadow: 6px 0px 14px 0px rgba(0,0,0,0.1);
+    -moz-box-shadow: 6px 0px 14px 0px rgba(0,0,0,0.1);
+    box-shadow: 6px 0px 14px 0px rgba(0,0,0,0.1);
+    -webkit-overflow-scrolling:touch;
+    -webkit-transform: translate3d(0,0,0);
+}
+#rightwrap {
+    position:relative;
+    width:100%;
+    right:0;
+}
+.right {
+    width: 74%;
+    height: auto;
+    position: absolute;
+    top:0;
+    right: 0;
+    font-family:sans-serif;
+    font-size:16px;
+    line-height:24px;
+    color:#111111;
+    padding-left:10px;
+    background-color:#ffffff;
+    z-index:1000000;
+    overflow:auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+        -webkit-overflow-scrolling:touch;
+    -webkit-transform: translate3d(0,0,0);
+}
+.four {
+    clear:both;
+    margin-top:80px;
+}
+
+.four h3, p {
+    display:inline;
+}
+
+.four h3:before, p:before {
+    content:"\A";
+    white-space:pre;
+    display:block;
+}
+
+.four h3:target, p:target {
+    background: #FFFD77;
+    padding-left:0px;
+    width:100%;
+    background-clip: content-box;
+}
+
+h1, h2 {
+    margin-left:-10px;
+    line-height:25px;
+    border-top:1px dotted #999999;
+    border-bottom:1px dotted #999999;
+    padding:10px 0px 10px 0px;
+    background-color:#ffffff;
+    width:100%;
+}
+
+nav {
+    color:#39c;
+    overflow:auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+nav li {
+    list-style-type:none;
+    margin-bottom:10px;
+}
+nav li a {
+    color:#39c;
+}
+h1:before {
+    display:block;
+    content: " ";
+    margin-top:-45px;
+    height:45px;
+    visibility:hidden;
+}
+.compensation tr {
+    height:30px;
+    text-align:center;
+}
+.compensation tr:nth-child(odd):not(.tableheader, .tr_white) {
+    background:#ececec;
+}
+.tableheader {
+    background-color:#242626;
+    color:#f0f0f0;
+}
+.dropbtn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 16px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    width:100%;
+}
+
+/* Dropdown button on hover & focus */
+.dropbtn:hover, .dropbtn:focus {
+    background-color: #3e8e41;
+    color:#444444;
+}
+
+/* The container <div> - needed to position the dropdown content */
+.dropdown {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    
+}
+
+/* Dropdown Content (Hidden by Default) */
+.dropdown-content {
+    position: absolute;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    overflow:scroll;
+}
+
+/* Links inside the dropdown */
+.dropdown-content a {
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+/* Change color of dropdown links on hover */
+.dropdown-content a:hover {background-color: #f1f1f1}
+
+/* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
+.show {display:block;}
+
+.nav_link {
+    color:#444444;
+    font-size:14px;
+    font-weight:100;
+    border-bottom:1px dotted #cccccc;
+}
+
+.active {
+    color:#f0f0f0;
+    background-color:#4CAF50;
+    font-size:14px;
+    font-weight:100;
+}
+.active:hover {
+    color:#444444;
+}
+
+section section section {
+    padding-left: 50px;
+}
+
+.persist-header {
+    background-color:#4CAF50;
+    color:#f0f0f0;
+    padding-left:2%;
+    top:0;
+    z-index:100000;
+-webkit-box-shadow: 0px 2px 14px 0px rgba(0,0,0,0.25);
+-moz-box-shadow: 0px 2px 14px 0px rgba(0,0,0,0.25);
+box-shadow: 0px 2px 14px 0px rgba(0,0,0,0.25);
+}
+@media not all and (-webkit-min-device-pixel-ratio:0)
+{  
+    .persist-header
+    {
+        max-height:35px;
+    }
+}
+#intro {
+    width: 70%;
+    margin:auto;
+    background-color:#fafafa;
+    padding:1px;
+    -webkit-box-shadow: 0px 0px 14px 2px rgba(0,0,0,0.1);
+    -moz-box-shadow: 0px 0px 14px 2px rgba(0,0,0,0.1);
+    box-shadow: 0px 0px 14px 2px rgba(0,0,0,0.1);
+    color:#555555;
+}

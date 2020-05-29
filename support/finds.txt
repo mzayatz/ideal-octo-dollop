@@ -1,0 +1,2 @@
+###### PARAGRAPH REGEX ######
+<span class="tooltipline" title="Section (\w.)*" rel="tooltip">(\w.)*</span>
