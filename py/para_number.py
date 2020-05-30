@@ -26,13 +26,19 @@ arab_num = ""
 lower_letter = ""
 roman_num = ""
 
+lower_count = 0
+LOWER_LETTERS = "abcdefghijklmnopqrstuvwxyza" # added a because section 18C6aa
+
 # SECTION = 1
 #   SECTION + 1 if CAPLET == "A" .
 # CAPLET.ARABNUM.LOWLET.ROMANNUM
 
 para_id = ""
 
-for node in soup.findAll(text=True):
+nodes = soup.findAll()
+
+for ac_node in nodes:
+    node = ac_node.getText()
     match = regex.match(node)
 
     string = ""
@@ -49,23 +55,36 @@ for node in soup.findAll(text=True):
                 capital_letter = para_id
                 arab_num = ""
                 lower_letter = ""
-                roman_num =""
-                print(str(section) + capital_letter + " / " + str(node))
+                lower_count = 0
+                roman_num = ""
+                
+                if len(node) < 75:
+                    ac_node.name = "h3"
 
             elif para_id.isnumeric():
                 arab_num = para_id
                 lower_letter = ""
                 roman_num = ""
+                lower_count = 0
+
+                if len(node) < 50:
+                    ac_node.name = "h4"
             
             elif para_id.islower():
-                if lower_letter != "":
-                    roman_num = para_id
-                else:
+                if para_id == LOWER_LETTERS[lower_count]:
                     lower_letter = para_id
+                    lower_count = lower_count + 1
                     roman_num = ""
+                else:
+                    roman_num = para_id
             
-            #string = str(section) + capital_letter + arab_num + lower_letter + roman_num
-            #print(string + " / " + str(node))
+            string = str(section) + capital_letter + arab_num + lower_letter + roman_num
+            #TESTING
+            if ac_node.name != "td":
+                ac_node['id'] = string
+
+with open("fdx_2015_tester.html", "w") as file:
+    file.write(str(soup))
 
 
                 
