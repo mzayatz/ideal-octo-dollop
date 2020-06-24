@@ -7,39 +7,14 @@ body {
     margin-right: 2em;
 }
 
-h3 {
-    background-color: pink;
-}
-
-section section section {
-    margin-left: 2em;
-    margin-right: 4em;
-}
-
-dl {
-    counter-reset: defs;
-}
-
-dt {
-    font-weight: bold;
-}
-
-dd {
-    margin-left: 2.3em;
-}
-
-dt::before {
-    counter-increment: defs;
-    content: counter(defs) ". "
-}
-
-dd~dt {
-    padding-top: 1em;
-}
-
 table {
-    border-style: dashed;
+    border-style: solid;
+    border-width: 1px;
+    box-shadow: 5px 5px 2px 1px grey;
 }
 
+tr:nth-of-type(2n) {
+    background-color: rgb(220, 239, 250);
+}
 
 
