@@ -42,13 +42,98 @@ def find_section_reference_and_return(input_string):
     return section_id, section_start_pos, section_end_pos
 
 
+def find_paragraph_id_and_set_node_id(input_soup):
+    SECTION_NUMBER_REGEX = re.compile(r"Section (\d+):")
+    PARAGRAPH_ID_REGEX = re.compile(r"\w+\.{1}")
+
+    section = 0
+    capital_letter = ""
+    arab_num = ""
+    lower_letter = ""
+    roman_num = ""
+
+    lower_count = 0
+
+    # SECTION = 1
+    #   SECTION + 1 if CAPLET == "A" .
+    # CAPLET.ARABNUM.LOWLET.ROMANNUM
+
+    para_id = ""
+
+    nodes = input_soup.findAll(["p","h1","h2","h3","h4","h5"])
+
+    for node in nodes:
+        node_text = node.getText()
+        section_match = SECTION_NUMBER_REGEX.match(node_text)
+        match = PARAGRAPH_ID_REGEX.match(node_text)
+
+        string = ""
+        if section_match:
+            section = int(section_match.group(1))
+
+        # TODO: HACKY AS SHIT
+        if node_text == "Lump Sum Payment Distribution (2015)":
+            section = 32
+
+        if match:
+            para_id = match.group(0).strip(".")
+            if para_id == "A":
+                #section = section + 1
+                if section == 2: #skipping section 2
+                    section = section + 1
+            
+            if section <= LAST_SECTION: # TODO: horribly inefficent
+                if para_id.isupper():
+                    capital_letter = para_id
+                    arab_num = ""
+                    lower_letter = ""
+                    lower_count = 0
+                    roman_num = ""
+                    
+                    if len(node_text):
+                        node.name = "h3"
+
+                elif para_id.isnumeric():
+                    arab_num = para_id
+                    lower_letter = ""
+                    roman_num = ""
+                    lower_count = 0
+
+                    if len(node_text) < 50:
+                        node.name = "h4"
+
+                elif para_id.islower():
+                    
+                    if lower_count > len(LOWER_LETTERS) - 1:
+                        lower_count = 0
+                    if para_id[0] == LOWER_LETTERS[lower_count]:
+                        lower_letter = para_id
+                        lower_count = lower_count + 1
+                        roman_num = ""
+                    else:
+                        roman_num = para_id
+                
+                string = str(section) \
+                    + capital_letter \
+                    + arab_num \
+                    + lower_letter \
+                    + roman_num
+                node['id'] = string
+        
+        new_section_string = return_section_string_with_link(node_text)
+        if new_section_string != node_text:
+            new_soup = BeautifulSoup(
+                new_section_string, features="html.parser"
+            )
+            node.clear()
+            node.append(new_soup)
 
 DEFAULT_INPUT_FILENAME = "fdx_2015_working.html"
 DEFAULT_OUTPUT_FILENAME = "fdx_2015_tester.html"
 LAST_SECTION = 31
 LOWER_LETTERS = "abcdefghijklmnopqrstuvwxyz" # added a because section 18C6aa 
 
-SECTION_REGEX = r"\w+\.{1}"
+
 
 input_filename = input("Enter input filename: ")
 
@@ -64,80 +149,8 @@ try:
 except:
     print("File not found. Exiting...")
 
-section_regex = re.compile(SECTION_REGEX)
+find_paragraph_id_and_set_node_id(soup)
 
-section = 0
-capital_letter = ""
-arab_num = ""
-lower_letter = ""
-roman_num = ""
-
-lower_count = 0
-
-# SECTION = 1
-#   SECTION + 1 if CAPLET == "A" .
-# CAPLET.ARABNUM.LOWLET.ROMANNUM
-
-para_id = ""
-
-nodes = soup.findAll(["p","h1","h2","h3","h4","h5"])
-
-for node in nodes:
-    node_text = node.getText()
-    match = section_regex.match(node_text)
-
-    string = ""
-
-    if match:
-        para_id = match.group(0).strip(".")
-        if para_id == "A":
-            section = section + 1
-            if section == 2: #skipping section 2
-                section = section + 1
-        
-        if section <= LAST_SECTION: # TODO: horribly inefficent
-            if para_id.isupper():
-                capital_letter = para_id
-                arab_num = ""
-                lower_letter = ""
-                lower_count = 0
-                roman_num = ""
-                
-                if len(node_text):
-                    node.name = "h3"
-
-            elif para_id.isnumeric():
-                arab_num = para_id
-                lower_letter = ""
-                roman_num = ""
-                lower_count = 0
-
-                if len(node_text) < 50:
-                    node.name = "h4"
-
-            elif para_id.islower():
-                
-                if lower_count > len(LOWER_LETTERS) - 1:
-                    lower_count = 0
-                if para_id[0] == LOWER_LETTERS[lower_count]:
-                    lower_letter = para_id
-                    lower_count = lower_count + 1
-                    roman_num = ""
-                else:
-                    roman_num = para_id
-            
-            string = str(section) \
-                + capital_letter \
-                + arab_num \
-                + lower_letter \
-                + roman_num
-            node['id'] = string
-    
-    new_section_string = return_section_string_with_link(node_text)
-    if new_section_string != node_text:
-        new_soup = BeautifulSoup(new_section_string, features="html.parser")
-        node.clear()
-        node.append(new_soup)
 output_filename = input("Enter output filename: ")
 
 if output_filename == "":
