@@ -4,7 +4,6 @@
 from bs4 import BeautifulSoup
 import re
 
-
 def return_section_string_with_link(input_string):
     section_id, link_start_pos, link_end_pos = \
         find_section_reference_and_return(input_string)
@@ -40,9 +39,11 @@ def find_section_reference_and_return(input_string):
         section_start_pos = match.start()
         section_end_pos = match.end()
     return section_id, section_start_pos, section_end_pos
+    
 
-
-def find_paragraph_id_and_set_node_id(input_soup):
+def find_paragraph_id_and_set_node_id(input_nodes):
+    LAST_SECTION = 31
+    LOWER_LETTERS = "abcdefghijklmnopqrstuvwxyz" # added a because section 18C6aa 
     SECTION_NUMBER_REGEX = re.compile(r"Section (\d+):")
     PARAGRAPH_ID_REGEX = re.compile(r"\w+\.{1}")
 
@@ -60,12 +61,10 @@ def find_paragraph_id_and_set_node_id(input_soup):
 
     para_id = ""
 
-    nodes = input_soup.findAll(["p","h1","h2","h3","h4","h5"])
-
-    for node in nodes:
+    for node in input_nodes:
         node_text = node.getText()
         section_match = SECTION_NUMBER_REGEX.match(node_text)
-        match = PARAGRAPH_ID_REGEX.match(node_text)
+        para_id_match = PARAGRAPH_ID_REGEX.match(node_text)
 
         string = ""
         if section_match:
@@ -75,13 +74,8 @@ def find_paragraph_id_and_set_node_id(input_soup):
         if node_text == "Lump Sum Payment Distribution (2015)":
             section = 32
 
-        if match:
-            para_id = match.group(0).strip(".")
-            if para_id == "A":
-                #section = section + 1
-                if section == 2: #skipping section 2
-                    section = section + 1
-            
+        if para_id_match:
+            para_id = para_id_match.group(0).strip(".")
             if section <= LAST_SECTION: # TODO: horribly inefficent
                 if para_id.isupper():
                     capital_letter = para_id
@@ -128,35 +122,50 @@ def find_paragraph_id_and_set_node_id(input_soup):
             node.clear()
             node.append(new_soup)
 
-DEFAULT_INPUT_FILENAME = "fdx_2015_working.html"
-DEFAULT_OUTPUT_FILENAME = "fdx_2015_tester.html"
-LAST_SECTION = 31
-LOWER_LETTERS = "abcdefghijklmnopqrstuvwxyz" # added a because section 18C6aa 
+
+def main():
+    print("")
+    print("######################################")
+    print("#                                    #")
+    print("# FedEx CBA 2015 Parser Version 1.00 #")
+    print("# Updated 27 June 2020               #")
+    print("#                                    #")
+    print("######################################")
+
+    print("")
+
+    DEFAULT_INPUT_FILENAME = "fdx_2015_working.html"
+    DEFAULT_OUTPUT_FILENAME = "fdx_2015_tester.html"
+
+    input_filename = input("Enter input filename: ")
+
+    if input_filename == "":
+        input_filename = DEFAULT_INPUT_FILENAME
+
+    soup = ""
 
 
+    try:
+        with open(input_filename, "r") as file:
+            soup = BeautifulSoup(file, features="html.parser")
 
-input_filename = input("Enter input filename: ")
+    except:
+        print("")
+        print("File not found. Exiting...")
+        print("")
+        exit()
 
-if input_filename == "":
-    input_filename = DEFAULT_INPUT_FILENAME
+    nodes = soup.findAll(["p","h1","h2","h3","h4","h5"])
 
-soup = ""
-try:
-    soup = BeautifulSoup(
-        open(input_filename), features="html.parser"
-    )
+    find_paragraph_id_and_set_node_id(nodes)
 
-except:
-    print("File not found. Exiting...")
+    output_filename = input("Enter output filename: ")
 
-find_paragraph_id_and_set_node_id(soup)
+    if output_filename == "":
+        output_filename = DEFAULT_OUTPUT_FILENAME
 
-output_filename = input("Enter output filename: ")
+    with open(output_filename, "w") as file:
+        file.write(str(soup))
 
-if output_filename == "":
-    output_filename = DEFAULT_OUTPUT_FILENAME
-
-with open(output_filename, "w") as file:
-    file.write(str(soup))
-
-
+if __name__ == "__main__":
+    main()
