@@ -82,6 +82,11 @@ def find_paragraph_id_and_set_node_id(input_nodes):
         if section_match:
             section = int(section_match.group(1))
             node['id'] = str(section)
+            node['section'] = str(section)
+            node['sub-section'] = ""
+            node['paragraph'] = ""
+            node['sub-paragraph'] = ""
+            node['sub-sub-paragraph'] = ""
 
 
         # TODO: HACKY AS SHIT
@@ -136,6 +141,11 @@ def find_paragraph_id_and_set_node_id(input_nodes):
                     + lower_letter \
                     + roman_num
                 node['id'] = string
+                node['section'] = str(section)
+                node['sub-section'] = capital_letter
+                node['paragraph'] = arab_num
+                node['sub-paragraph'] = lower_letter
+                node['sub-sub-paragraph'] = roman_num
                 lastString = string
         new_section_string = return_section_string_with_link(node_text)
         if new_section_string != node_text:
@@ -191,24 +201,44 @@ def main():
         file.write(str(soup))
 
     nodes = soup.findAll(["p","h1","h2","h3","h4","h5"])
-    paragraphs = {}
-    lastId = ""
+    paragraphs = []
+    paragraph = {}
+    lastParagraph = {}
+    unnumberedId = 0
     idNumber = 0
     for node in nodes:
+        paragraph = {}
         if node.text == "Lump Sum Payment Distribution (2015)":
             break
         if 'id' in node.attrs:
-            paragraphs[node['id']] = node.text
-            lastId = node['id']
-            idNumber = 0
-        else:
-            paragraphs[f'{lastId}_{idNumber}'] = node.text
-            print(f'{lastId}_{idNumber}')
+            paragraph['number'] = node['id']
+            paragraph['section'] = node['section'] if node['section'] != "" else None
+            paragraph['subSection'] = node['sub-section'] if node['sub-section'] != "" else None
+            paragraph['paragraph'] = node['paragraph'] if node['paragraph'] != "" else None
+            paragraph['subParagraph'] = node['sub-paragraph'] if node['sub-paragraph'] != "" else None
+            paragraph['subSubParagraph'] = node['sub-sub-paragraph'] if node['sub-sub-paragraph'] != "" else None
+            paragraph['unnumberedId'] = None
+            paragraph['text'] = node.text
+            paragraph['uniqueId'] = idNumber
             idNumber += 1
+            lastParagraph = paragraph 
+            unnumberedId = 0
 
-    for k,v in paragraphs.items():
-        if v == None:
-            print(f'{k} - is none!')
+        elif lastParagraph:
+            paragraph['number'] = f'{lastParagraph["number"]}_{unnumberedId}'
+            paragraph['section'] = lastParagraph['section'] 
+            paragraph['subSection'] = lastParagraph['subSection'] 
+            paragraph['paragraph'] = lastParagraph['paragraph'] 
+            paragraph['subParagraph'] = lastParagraph['subParagraph'] 
+            paragraph['subSubParagraph'] = lastParagraph['subSubParagraph'] 
+            paragraph['unnumberedId'] = unnumberedId
+            paragraph['text'] = node.text
+            paragraph['uniqueId'] = idNumber
+            idNumber += 1
+            unnumberedId += 1
+        
+        if paragraph:
+            paragraphs.append(paragraph)
     
     json_output_filename = input("Enter JSON output filename: ")
 
