@@ -4,6 +4,7 @@
 from bs4 import BeautifulSoup
 import re
 import json
+import time
 
 # Setting this to true will allow the script to create links
 CREATE_LINKS = True
@@ -157,10 +158,11 @@ def main():
 
     print("")
 
-    DEFAULT_INPUT_FILENAME = "fdx_2015_working.html"
-    DEFAULT_OUTPUT_FILENAME = "fdx_2015_parsed.html"
+    int_time = int(time.time())
+    DEFAULT_INPUT_FILENAME = "fdx_2015_original.html"
+    DEFAULT_OUTPUT_FILENAME = f"fdx_2015_parsed_{int_time}.html"
 
-    input_filename = input("Enter input filename: ")
+    input_filename = input(f"Enter input filename ({DEFAULT_INPUT_FILENAME}): ")
 
     if input_filename == "":
         input_filename = DEFAULT_INPUT_FILENAME
@@ -194,7 +196,7 @@ def main():
         
 
 
-    output_filename = input("Enter output filename: ")
+    output_filename = input(f"Enter output filename ({DEFAULT_OUTPUT_FILENAME}): ")
 
     if output_filename == "":
         output_filename = DEFAULT_OUTPUT_FILENAME
