@@ -6,7 +6,7 @@ import re
 import json
 
 # Setting this to true will allow the script to create links
-CREATE_LINKS = False
+CREATE_LINKS = True
 
 def return_section_string_with_link(input_string):
     if CREATE_LINKS:
@@ -159,7 +159,6 @@ def main():
 
     DEFAULT_INPUT_FILENAME = "fdx_2015_working.html"
     DEFAULT_OUTPUT_FILENAME = "fdx_2015_parsed.html"
-    DEFAULT_JSON_OUTPUT_FILENAME = "fdx_2015_parsed.json"
 
     input_filename = input("Enter input filename: ")
 
@@ -181,6 +180,19 @@ def main():
 
     nodes = soup.findAll(["p","h1","h2","h3","h4","h5"])
     find_paragraph_id_and_set_node_id(nodes)
+    newest_soup = BeautifulSoup()
+    for node in nodes: 
+        nodeId = ""
+        if node.has_attr('id'):
+            nodeId = node['id']
+        
+        node.attrs = {}
+
+        if nodeId != "": 
+            node['id'] = nodeId
+        newest_soup.append(node)
+        
+
 
     output_filename = input("Enter output filename: ")
 
@@ -188,36 +200,7 @@ def main():
         output_filename = DEFAULT_OUTPUT_FILENAME
 
     with open(output_filename, "w") as file:
-        file.write(str(soup))
-
-    nodes = soup.findAll(["p","h1","h2","h3","h4","h5"])
-    paragraphs = {}
-    lastId = ""
-    idNumber = 0
-    for node in nodes:
-        if node.text == "Lump Sum Payment Distribution (2015)":
-            break
-        if 'id' in node.attrs:
-            paragraphs[node['id']] = node.text
-            lastId = node['id']
-            idNumber = 0
-        else:
-            paragraphs[f'{lastId}_{idNumber}'] = node.text
-            print(f'{lastId}_{idNumber}')
-            idNumber += 1
-
-    for k,v in paragraphs.items():
-        if v == None:
-            print(f'{k} - is none!')
-    
-    json_output_filename = input("Enter JSON output filename: ")
-
-    if json_output_filename == "":
-        json_output_filename = DEFAULT_JSON_OUTPUT_FILENAME
-
-    with open(json_output_filename, "w") as outfile:  
-        json.dump(paragraphs, outfile)
-    ##print(nodesWithId)
+        file.write(str(newest_soup))
 
 if __name__ == "__main__":
     main()
