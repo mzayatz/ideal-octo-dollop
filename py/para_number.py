@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 import re
 import json
 import time
+import cba_html_cleaner
 
 # Setting this to true will allow the script to create links
 CREATE_LINKS = True
@@ -55,31 +56,31 @@ def is_matched_paragraph_id_suspect(para_id):
 
 def find_paragraph_id_and_set_node_id(input_nodes):
     LAST_SECTION = 32
-    LOWER_LETTERS = "abcdefghijklmnopqrstuvwxyz" # added a because section 18C6aa 
+    SUB_PARAGRAPH_LETTERS = "abcdefghijklmnopqrstuvwxyz"
     SECTION_NUMBER_REGEX = re.compile(r"Section (\d+):")
     PARAGRAPH_ID_REGEX = re.compile(r"\w+\.{1}")
 
-    section = 0
-    capital_letter = ""
-    arab_num = ""
-    lower_letter = ""
-    roman_num = ""
+    section = 0         # arabic number
+    sub_section = ""    # capital letter
+    paragraph = ""      # arabic number 
+    sub_paragraph = ""  # lowercase letter
+    clause = ""         # roman numeral
 
-    lower_count = 0
+    sub_paragraph_count = 0
 
     # SECTION = 1
     #   SECTION + 1 if CAPLET == "A" .
     # CAPLET.ARABNUM.LOWLET.ROMANNUM
 
-    para_id = ""
-    lastString = ""
+    line_identifier = ""
+    last_constructed_cba_identifier = ""
 
     for node in input_nodes:
         node_text = node.getText()
         section_match = SECTION_NUMBER_REGEX.match(node_text)
         para_id_match = PARAGRAPH_ID_REGEX.match(node_text)
     
-        string = ""
+        constructed_cba_identifier = ""
         if section_match:
             section = int(section_match.group(1))
             node['id'] = str(section)
@@ -90,54 +91,48 @@ def find_paragraph_id_and_set_node_id(input_nodes):
             break
 
         if para_id_match:
-            para_id = para_id_match.group(0).strip(".")
+            line_identifier = para_id_match.group(0).strip(".")
             
-            # HACK FOR 1015 FDX SECTION 27
-            # Default Algorithm treats percentages as
+            # HACK FOR 2015 FDX SECTION 27
+            # Default algorithm treats percentages as
             # new paragraph numbers
-            if not is_matched_paragraph_id_suspect(para_id):
-                if para_id.isupper():
-                    capital_letter = para_id
-                    arab_num = ""
-                    lower_letter = ""
-                    lower_count = 0
-                    roman_num = ""
-                    
-                    if len(node_text):
-                        node.name = "h3"
+            if not is_matched_paragraph_id_suspect(line_identifier):
+                if line_identifier.isupper():
+                    sub_section = line_identifier
+                    paragraph = ""
+                    sub_paragraph = ""
+                    sub_paragraph_count = 0
+                    clause = ""
 
-                elif para_id.isnumeric():
-                    arab_num = para_id
-                    lower_letter = ""
-                    roman_num = ""
-                    lower_count = 0
+                elif line_identifier.isnumeric():
+                    paragraph = line_identifier
+                    sub_paragraph = ""
+                    clause = ""
+                    sub_paragraph_count = 0
 
-                    if len(node_text) < 50:
-                        node.name = "h4"
-
-                elif para_id.islower():
-                    if lower_count > len(LOWER_LETTERS) - 1:
-                        lower_count = 0
-                    if para_id[0] == LOWER_LETTERS[lower_count]:
+                elif line_identifier.islower():
+                    if sub_paragraph_count > len(SUB_PARAGRAPH_LETTERS) - 1:
+                        sub_paragraph_count = 0
+                    if line_identifier[0] == SUB_PARAGRAPH_LETTERS[sub_paragraph_count]:
                         
                         # HACK FOR FDX 8C1hi
                         # Default Algorithm treats 8C1hi as 8C1i
-                        if lastString == "8C1h" or lastString == "8C1hi":
-                            roman_num = para_id
+                        if last_constructed_cba_identifier == "8C1h" or last_constructed_cba_identifier == "8C1hi":
+                            clause = line_identifier
                         else:
-                            lower_letter = para_id
-                            lower_count = lower_count + 1
-                            roman_num = ""
+                            sub_paragraph = line_identifier
+                            sub_paragraph_count = sub_paragraph_count + 1
+                            clause = ""
                     else:
-                        roman_num = para_id
+                        clause = line_identifier
                 
-                string = str(section) \
-                    + capital_letter \
-                    + arab_num \
-                    + lower_letter \
-                    + roman_num
-                node['id'] = string
-                lastString = string
+                constructed_cba_identifier = str(section) \
+                    + sub_section \
+                    + paragraph \
+                    + sub_paragraph \
+                    + clause
+                node['id'] = constructed_cba_identifier
+                last_constructed_cba_identifier = constructed_cba_identifier
         new_section_string = return_section_string_with_link(node_text)
         if new_section_string != node_text:
             new_soup = BeautifulSoup(
@@ -180,16 +175,15 @@ def main():
         print("")
         exit()
 
-    nodes = soup.findAll(["p","h1","h2","h3","h4","h5"])
+    cba_html_cleaner.clean_fdx_cba(soup)
+
+    nodes = soup.findAll(["p","h1","h2","h3","h4","h5","table"])
     find_paragraph_id_and_set_node_id(nodes)
     newest_soup = BeautifulSoup()
     for node in nodes: 
         nodeId = ""
         if node.has_attr('id'):
             nodeId = node['id']
-        
-        node.attrs = {}
-
         if nodeId != "": 
             node['id'] = nodeId
         newest_soup.append(node)
